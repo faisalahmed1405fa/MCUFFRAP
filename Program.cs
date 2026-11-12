@@ -161,7 +161,7 @@ internal class Program
         }
 
         // Run the weak LP relaxation and record its objective and run time.
-        if (!TryParsePositionalBoolean(parsedArgs, 12, "run-weak-lp", false, out var runWeakLp))
+        if (!TryParsePositionalBoolean(parsedArgs, 12, "run-weak-lp", true, out var runWeakLp))
             return 1;
 
         // Root-relaxation-only CG: run just the Phase 1 / Phase 2 LP root relaxations
@@ -213,7 +213,7 @@ internal class Program
 
         // Add the SI cuts x[a,r] <= y_{s(a)} to the weak LP relaxation; "both" solves
         // the weak LP without and then with the SI cuts in the same run.
-        var weakLpVariants = new List<bool> { true };
+        var weakLpVariants = new List<bool> { false, true };
         if (parsedArgs.Length >= 20)
         {
             switch (parsedArgs[19].ToLowerInvariant())
@@ -371,7 +371,7 @@ internal class Program
 
                 if (cgSolution is null)
                 {
-                    Console.WriteLine($"Column generation did not find a feasible solution ({cgSw.Elapsed.TotalSeconds:F1} s).");
+                    Console.WriteLine($"Column generation did not find an integer solution ({cgSw.Elapsed.TotalSeconds:F1} s).");
                     
                 }
                 else
@@ -547,14 +547,14 @@ internal class Program
         Console.Error.WriteLine("  --branch-and-price <0|1|true|false>           default: false");
         Console.Error.WriteLine("  --branch-depth <non-negative integer>         default: 5");
         Console.Error.WriteLine("  --cg-num-paths <positive integer>             default: 1");
-        Console.Error.WriteLine("  --run-weak-lp <0|1|true|false>                default: false");
+        Console.Error.WriteLine("  --run-weak-lp <0|1|true|false>                default: true");
         Console.Error.WriteLine("  --root-relaxation-only <0|1|true|false>       default: true");
         Console.Error.WriteLine("  --single-threaded <0|1|true|false>            default: false");
         Console.Error.WriteLine("  --legreq-idle-limit <integer>                 default: 0 (negative: never remove)");
         Console.Error.WriteLine("  --cg-max-iterations <positive integer>        default: 200");
         Console.Error.WriteLine("  --hybrid-switch-tolerance <positive fraction> default: 0.01 (1%; used by enable-dual-lb 2, 3 and 4)");
         Console.Error.WriteLine("  --hybrid-switch-stall-iters <positive integer> default: 3 (look-back window: 0 -> 1 on insufficient dual-bound increase; mode 3 also switches 1 -> 0 on insufficient master-LP decrease; resets after each mode-3 switch)");
-        Console.Error.WriteLine("  --weak-lp-si-cuts <0|1|2|true|false|both>     default: true (x[a,r] <= y_s(a) in the weak LP; both/2: run without and with, SI results in weaklp_si.*)");
+        Console.Error.WriteLine("  --weak-lp-si-cuts <0|1|2|true|false|both>     default: 2 (x[a,r] <= y_s(a) in the weak LP; both/2: run without and with, SI results in weaklp_si.*)");
         Console.Error.WriteLine("  --cg-css-heuristic <0|1|true|false>           default: true (SP-CSS heuristic pricing before the MIP)");
         Console.Error.WriteLine("  --column-idle-limit <integer>                 default: 2 (extra rounds an unused column stays before removal; negative: never remove)");
         Console.Error.WriteLine("  --lp-method <-1..5>                           default: 0 (Gurobi Method for the CG restricted master LP)");
@@ -565,7 +565,7 @@ internal class Program
 
     private static bool TryParseNamedArguments(string[] args, out string[] parsedArgs, out string error)
     {
-        parsedArgs = new string[] { "", "static", "legrequest", "600", "0", "1", "1", "50", "0.0001", "0", "5", "1", "0", "1", "0", "0", "200", "0.01", "3", "1", "1", "2", "0", "-1", "4" };
+        parsedArgs = new string[] { "", "static", "legrequest", "600", "0", "1", "1", "50", "0.0001", "0", "5", "1", "1", "1", "0", "0", "200", "0.01", "3", "2", "1", "2", "0", "-1", "4" };
         error = "";
         var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
